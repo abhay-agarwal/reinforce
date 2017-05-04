@@ -3,9 +3,9 @@
 
 # # Simple Reinforcement Learning in Tensorflow Part 2: Policy Gradient Method
 # This tutorial contains a simple example of how to build a policy-gradient based agent that can solve the CartPole problem. For more information, see this [Medium post](https://medium.com/@awjuliani/super-simple-reinforcement-learning-tutorial-part-2-ded33892c724#.mtwpvfi8b).
-# 
-# For more Reinforcement Learning algorithms, including DQN and Model-based learning in Tensorflow, see my Github repo, [DeepRL-Agents](https://github.com/awjuliani/DeepRL-Agents). 
-# 
+#
+# For more Reinforcement Learning algorithms, including DQN and Model-based learning in Tensorflow, see my Github repo, [DeepRL-Agents](https://github.com/awjuliani/DeepRL-Agents).
+#
 # Parts of this tutorial are based on code by [Andrej Karpathy](https://gist.github.com/karpathy/a4166c7fe253700972fcbc77e4ea32c5) and [korymath](https://gym.openai.com/evaluations/eval_a0aVJrGSyW892vBM04HQA).
 
 # In[10]:
@@ -13,7 +13,6 @@
 import numpy as np
 import pickle
 import tensorflow as tf
-get_ipython().magic('matplotlib inline')
 import matplotlib.pyplot as plt
 import math
 
@@ -31,20 +30,20 @@ env = gym.make('CartPole-v0')
 
 # In[12]:
 
-env.reset()
-random_episodes = 0
-reward_sum = 0
-while random_episodes < 10:
-    env.render()
-    observation, reward, done, _ = env.step(np.random.randint(0,2))
-    reward_sum += reward
-    if done:
-        random_episodes += 1
-        print("Reward for this episode was:",reward_sum)
-        reward_sum = 0
-        env.reset()
+# env.reset()
+# random_episodes = 0
+# reward_sum = 0
+# while random_episodes < 10:
+#     env.render()
+#     observation, reward, done, _ = env.step(np.random.randint(0,2))
+#     reward_sum += reward
+#     if done:
+#         random_episodes += 1
+#         print("Reward for this episode was:",reward_sum)
+#         reward_sum = 0
+#         env.reset()
 
-env.render(close=True)
+# env.render(close=True)
 
 
 # The goal of the task is to achieve a reward of 200 per episode. For every step the agent keeps the pole in the air, the agent recieves a +1 reward. By randomly choosing actions, our reward for each episode is only a couple dozen. Let's make that better with RL!
@@ -67,7 +66,7 @@ D = 4 # input dimensionality
 
 tf.reset_default_graph()
 
-#This defines the network as it goes from taking an observation of the environment to 
+#This defines the network as it goes from taking an observation of the environment to
 #giving a probability of chosing to the action of moving left or right.
 observations = tf.placeholder(tf.float32, [None,D] , name="input_x")
 W1 = tf.get_variable("W1", shape=[D, H],
@@ -83,10 +82,10 @@ tvars = tf.trainable_variables()
 input_y = tf.placeholder(tf.float32,[None,1], name="input_y")
 advantages = tf.placeholder(tf.float32,name="reward_signal")
 
-# The loss function. This sends the weights in the direction of making actions 
+# The loss function. This sends the weights in the direction of making actions
 # that gave good advantage (reward over time) more likely, and actions that didn't less likely.
 loglik = tf.log(input_y*(input_y - probability) + (1 - input_y)*(input_y + probability))
-loss = -tf.reduce_mean(loglik * advantages) 
+loss = -tf.reduce_mean(loglik * advantages)
 newGrads = tf.gradients(loss,tvars)
 
 # Once we have collected a series of gradients from multiple episodes, we apply them.
@@ -127,30 +126,30 @@ total_episodes = 10000
 init = tf.initialize_all_variables()
 
 # Launch the graph
-try: 
+try:
     with tf.Session() as sess:
         rendering = False
         sess.run(init)
         observation = env.reset() # Obtain an initial observation of the environment
 
-        # Reset the gradient placeholder. We will collect gradients in 
-        # gradBuffer until we are ready to update our policy network. 
+        # Reset the gradient placeholder. We will collect gradients in
+        # gradBuffer until we are ready to update our policy network.
         gradBuffer = sess.run(tvars)
         for ix,grad in enumerate(gradBuffer):
             gradBuffer[ix] = grad * 0
 
         while episode_number <= total_episodes:
 
-            # Rendering the environment slows things down, 
+            # Rendering the environment slows things down,
             # so let's only look at it once our agent is doing a good job.
-            if reward_sum/batch_size > 100 or rendering == True : 
+            if reward_sum/batch_size > 100 or rendering == True :
                 env.render()
                 rendering = True
 
             # Make sure the observation is in a shape the network can handle.
             x = np.reshape(observation,[1,D])
 
-            # Run the policy network and get an action to take. 
+            # Run the policy network and get an action to take.
             tfprob = sess.run(probability,feed_dict={observations: x})
             action = 1 if np.random.uniform() < tfprob else 0
 
@@ -164,7 +163,7 @@ try:
 
             drs.append(reward) # record reward (has to be done after we call step() to get reward for previous action)
 
-            if done: 
+            if done:
                 episode_number += 1
                 # stack together all inputs, hidden states, action gradients, and rewards for this episode
                 epx = np.vstack(xs)
@@ -174,7 +173,7 @@ try:
                 xs,hs,dlogps,drs,ys,tfps = [],[],[],[],[],[] # reset array memory
 
                 # compute the discounted reward backwards through time
-                print(discount_rewards(epr))
+                # print(discount_rewards(epr))
                 discounted_epr = discount_rewards(epr)
                 # size the rewards to be unit normal (helps control the gradient estimator variance)
                 discounted_epr -= np.mean(discounted_epr)
@@ -186,7 +185,7 @@ try:
                     gradBuffer[ix] += grad
 
                 # If we have completed enough episodes, then update the policy network with our gradients.
-                if episode_number % batch_size == 0: 
+                if episode_number % batch_size == 0:
                     sess.run(updateGrads,feed_dict={W1Grad: gradBuffer[0],W2Grad:gradBuffer[1]})
                     for ix,grad in enumerate(gradBuffer):
                         gradBuffer[ix] = grad * 0
@@ -195,7 +194,7 @@ try:
                     running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
                     print('Average reward for episode %f.  Total average reward %f.' % (reward_sum/batch_size, running_reward/batch_size))
 
-                    if reward_sum/batch_size > 200: 
+                    if reward_sum/batch_size > 200:
                         print("Task solved in",episode_number,'episodes!')
                         break
 
