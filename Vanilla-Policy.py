@@ -14,7 +14,6 @@ import tensorflow.contrib.slim as slim
 import numpy as np
 import gym
 import matplotlib.pyplot as plt
-get_ipython().magic('matplotlib inline')
 
 try:
     xrange = xrange
