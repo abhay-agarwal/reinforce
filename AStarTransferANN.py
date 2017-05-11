@@ -72,7 +72,7 @@ class agent():
 myAgent = agent(lr=0.01,s_size=states,a_size=actions,h_size=hidden) #Load the agent.
 
 total_episodes = 1000 #Set total number of episodes to train agent on.
-max_ep = 99
+max_ep = 999
 update_frequency = 1
 
 init = tf.global_variables_initializer()
@@ -92,8 +92,8 @@ try:
             i += 1
             s = env.reset()
             s = onehot(states, s)
-            running_reward = 0
-            ep_history = []
+            # running_reward = 0
+            # ep_history = []
             for j in range(max_ep):
                 #env.render()
                 #Probabilistically pick an action given our network outputs.
@@ -103,15 +103,15 @@ try:
 
                 s1,r,d,_ = env.step(a) #Get our reward for taking an action given a bandit.
                 s1 = onehot(states, s1)
-                ep_history.append([s,a,r,s1])
+                episode = np.array([[s,a,r,s1]])
                 s = s1
-                running_reward += r
+                # running_reward += r
                 if d == True:
                     #Update the network.
-                    ep_history = np.array(ep_history)
-                    ep_history[:,2] = discount_rewards(ep_history[:,2])
-                    feed_dict={myAgent.reward_holder:ep_history[:,2],
-                            myAgent.action_holder:ep_history[:,1],myAgent.state_in:np.vstack(ep_history[:,0])}
+                    # ep_history = np.array(ep_history)
+                    # ep_history[:,2] = discount_rewards(ep_history[:,2])
+                    feed_dict={myAgent.reward_holder:episode[:,2],
+                            myAgent.action_holder:episode[:,1],myAgent.state_in:np.vstack(episode[:,0])}
                     grads = sess.run(myAgent.gradients, feed_dict=feed_dict)
                     for idx,grad in enumerate(grads):
                         gradBuffer[idx] += grad
@@ -140,19 +140,6 @@ plt.plot(total_length)
 plt.show()
 
 # In[7]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
 
 
 
