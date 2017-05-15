@@ -6,5 +6,6 @@ Plan of Action
 - [x] Get OpenAI gym running on Windows
 - [x] Create A* Environment in OpenAI
 - [x] Add imitation reward in environment
-- [ ] Test for imitation learning in toy ANN
-- [ ] Create LSTM-RNN based Theta* environment
+- [x] Test for imitation learning in toy ANN
+- [x] Create LSTM-RNN based Theta* environment
+- [ ] Test for path planning knowledge using curriculum learning
