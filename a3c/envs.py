@@ -99,7 +99,7 @@ class DiagnosticsInfoI(vectorized.Filter):
             to_log["global/episode_reward"] = self._episode_reward
             to_log["global/episode_length"] = self._episode_length
             to_log["global/episode_time"] = total_time
-            to_log["global/reward_per_time"] = self._episode_reward / total_time
+            to_log["global/reward_per_time"] = self._episode_reward / total_time if total_time > 0 else 0
             self._episode_reward = 0
             self._episode_length = 0
             self._all_rewards = []

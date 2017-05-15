@@ -138,6 +138,9 @@ runner appends the policy to the queue.
             last_features = features
 
             if info:
+                # add some more logging info here:
+                if terminal:
+                    info["global/difficulty"] = env.unwrapped.max_dist
                 summary = tf.Summary()
                 for k, v in info.items():
                     summary.value.add(tag=k, simple_value=float(v))
