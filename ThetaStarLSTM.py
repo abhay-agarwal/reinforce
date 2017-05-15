@@ -33,6 +33,13 @@ tf.reset_default_graph()
 #         discounted_r[t] = running_add
 #     return discounted_r
 
+def process_frame(frame):
+    frame = cv2.resize(frame, (80,80))
+    frame = cv2.resize(frame, (42,42))
+    frame = frame.astype(np.float32)
+    frame *= (1.0 / 255.0)
+    frame = np.reshape(frame, [42,42,1])
+
 def onehot(s_size, s):
     return np.identity(s_size)[s:s+1]
 

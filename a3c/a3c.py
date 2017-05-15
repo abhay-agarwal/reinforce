@@ -12,7 +12,7 @@ use_tf12_api = distutils.version.LooseVersion(tf.VERSION) >= distutils.version.L
 def discount(x, gamma):
     return scipy.signal.lfilter([1], [1, -gamma], x[::-1], axis=0)[::-1]
 
-def process_rollout(rollout, gamma, lambda_=1.0):
+def process_rollout(rollout, gamma=0.99, lambda_=1.0):
     """
 given a rollout, compute its returns and the advantage
 """
@@ -113,6 +113,7 @@ runner appends the policy to the queue.
     last_features = policy.get_initial_features()
     length = 0
     rewards = 0
+    max_steps = 99
 
     while True:
         terminal_end = False
@@ -141,11 +142,8 @@ runner appends the policy to the queue.
                 summary_writer.add_summary(summary, policy.global_step.eval())
                 summary_writer.flush()
 
-            timestep_limit = env.spec.tags.get('wrapper_config.TimeLimit.max_episode_steps')
-            if terminal or length >= timestep_limit:
+            if terminal or length >= max_steps:
                 terminal_end = True
-                if length >= timestep_limit or not env.metadata.get('semantics.autoreset'):
-                    last_state = env.reset()
                 last_features = policy.get_initial_features()
                 print("Episode finished. Sum of rewards: %d. Length: %d" % (rewards, length))
                 length = 0
@@ -268,7 +266,7 @@ server.
 
         sess.run(self.sync)  # copy weights from shared to local
         rollout = self.pull_batch_from_queue()
-        batch = process_rollout(rollout, gamma=0.99, lambda_=1.0)
+        batch = process_rollout(rollout)
 
         should_compute_summary = self.task == 0 and self.local_steps % 11 == 0
 
