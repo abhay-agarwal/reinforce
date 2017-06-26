@@ -25,9 +25,7 @@ class YawMode:
         self.yaw_or_rate = yaw_or_rate
 
 class AirSimClient:
-        def __init__(self, ip, rpcport=41451):
-            if (ip == ""):
-                ip = "127.0.0.1"
+        def __init__(self, ip="127.0.0.1", rpcport=41451):
             self.client = msgpackrpc.Client(msgpackrpc.Address(ip, rpcport), timeout = 3600)
 
         # basic flight control
@@ -83,6 +81,8 @@ class AirSimClient:
             return self.client.call('rotateByYawRate', yaw_rate, duration)
         def moveByAngle(self, pitch, roll, z, yaw, duration):
             return self.client.call('moveByAngle', pitch, roll, z, yaw, duration)
+        def getCollisionInfo(self):
+            return self.client.call('getCollisionInfo')
 
         # camera control
         # image_type uses one of the AirSimImageType members
