@@ -7,7 +7,7 @@ from gym import utils
 from gym.utils import seeding
 
 import docker
-from PythonClient import *
+from .PythonClient import *
 
 import logging
 logger = logging.getLogger(__name__)

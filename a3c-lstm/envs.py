@@ -16,8 +16,9 @@ logger.setLevel(logging.INFO)
 universe.configure_logging()
 
 def create_env(env_id, client_id, remotes, **kwargs):
-    env = gym.make("gym-airsim-v0")
-    env._assign(client_id)
+    env = gym.make(env_id)
+    if env_id is "gym-airsim-v0":
+        env._assign(client_id+2) #ports start at 2
     env = Vectorize(env)
     env = DiagnosticsInfo(env)
     env = Unvectorize(env)
