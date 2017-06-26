@@ -3,7 +3,7 @@ from gym.spaces.box import Box
 import numpy as np
 import gym
 from gym import spaces
-import gym_astar_transfer 
+import gym_airsim
 import logging
 import universe
 from universe import vectorized
@@ -16,7 +16,8 @@ logger.setLevel(logging.INFO)
 universe.configure_logging()
 
 def create_env(env_id, client_id, remotes, **kwargs):
-    env = gym.make("ThetaStarTransfer-v0")
+    env = gym.make("gym-airsim-v0")
+    env._assign(client_id)
     env = Vectorize(env)
     env = DiagnosticsInfo(env)
     env = Unvectorize(env)

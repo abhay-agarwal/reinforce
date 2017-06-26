@@ -100,15 +100,15 @@ class AirSimClient:
             y = q[1]
             z = q[2]
             w = q[3]
-            ysqr = y * y;
+            ysqr = y * y
 
             # roll (x-axis rotation)
-            t0 = -2.0* (ysqr + z * z) + 1.0;
-            t1 = +2.0* (x * y + w * z);
+            t0 = -2.0* (ysqr + z * z) + 1.0
+            t1 = +2.0* (x * y + w * z)
             roll = math.atan2(t1, t0)
 
             # pitch (y-axis rotation)
-            t2 = -2.0* (x * z - w * y);
+            t2 = -2.0* (x * z - w * y)
             if (t2 > 1.0):
                 t2 = 1
             if (t2 < -1.0):
@@ -116,8 +116,8 @@ class AirSimClient:
             pitch = math.sin(t2)
 
             # yaw (z-axis rotation)
-            t3 = +2.0* (y * z + w * x);
-            t4 = -2.0* (x * x + ysqr) + 1.0;
+            t3 = +2.0* (y * z + w * x)
+            t4 = -2.0* (x * x + ysqr) + 1.0
             yaw = math.atan2(t3, t4)
 
             return (pitch, roll, yaw)
