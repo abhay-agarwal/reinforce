@@ -69,7 +69,7 @@ class AirsimEnv(gym.Env):
     def _step(self, action):
         self.steps += 1
         self._take_action(action)
-        has_collided = self.airsim.getCollisionInfo()[0]
+        has_collided = self.airsim.call('getCollisionInfo')[0]
         reward = default_reward if has_collided else 0
         ob = self._get_state()
         if has_collided:
@@ -101,8 +101,6 @@ class AirsimEnv(gym.Env):
             sys.exit(1)
         if raw:
             return frame
-        print("Shape is %s" % frame.shape)
-
         frame = cv2.resize(frame, (80, 80))
         frame = cv2.resize(frame, (42, 42))
         frame = frame.astype(np.float32)
