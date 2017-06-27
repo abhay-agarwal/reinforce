@@ -8,7 +8,7 @@ from gym.utils import seeding
 
 # import docker
 from subprocess import call
-from PythonClient import *
+from .PythonClient import *
 
 from vncdotool import api as vncapi
 
@@ -62,6 +62,8 @@ class AirsimEnv(gym.Env):
         if failed:
             print("Please launch docker container %s" % self.name)
             sys.exit(1)
+        else:
+            print("Container associated with docker %s." % self.name)
 
     def _step(self, action):
         self.steps += 1
@@ -79,7 +81,7 @@ class AirsimEnv(gym.Env):
             # TODO Move by angle
             # self.client.moveByAngle(self, pitch, roll, z, yaw, duration):
             print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
-            self.client.moveByAngle(1, 0, 2.5, direction, 10)
+            self.client.moveByAngle(1, 0, 3, direction, 10)
             # self.client.moveByVelocity(2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
         except Exception as e:
                     print("Container %s: Moving by %s returned error %s" % (self.name, direction, e))
@@ -120,7 +122,7 @@ class AirsimEnv(gym.Env):
                 armed = self.client.arm()
                 if armed:
                     self.client.takeoff()
-            except Exception as e:
+            except:
                 print("Container %s: Arming returned error %s" % (self.name, e))
             tries += 1
         if not armed:

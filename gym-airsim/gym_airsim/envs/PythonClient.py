@@ -25,7 +25,7 @@ class YawMode:
         self.yaw_or_rate = yaw_or_rate
 
 class AirSimClient:
-        def __init__(self, ip="127.0.0.1", rpcport=41451):
+        def __init__(self, ip="0.0.0.0", rpcport=41451):
             self.client = msgpackrpc.Client(msgpackrpc.Address(ip, rpcport), timeout = 3600)
 
         # basic flight control
