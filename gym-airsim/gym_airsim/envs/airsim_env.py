@@ -8,7 +8,7 @@ from gym.utils import seeding
 
 # import docker
 from subprocess import call
-from .PythonClient import *
+from PythonClient import *
 
 from vncdotool import api as vncapi
 
@@ -69,6 +69,8 @@ class AirsimEnv(gym.Env):
         has_collided = self.client.getCollisionInfo()[0]
         reward = default_reward if has_collided else 0
         ob = self._get_state()
+        if has_collided:
+            print("Drone has collided.")
         return ob, reward, has_collided, {}
 
     def _take_action(self, action):
@@ -106,6 +108,7 @@ class AirsimEnv(gym.Env):
         return frame
 
     def _reset(self):
+        print("Resetting Container")
         call(["sh", "-c", "docker restart -t 0 %s > /dev/null" % self.name])
         armed = False
         tries = 0
@@ -113,7 +116,7 @@ class AirsimEnv(gym.Env):
             time.sleep(1)
             print("Container %s: Trying to arm after %d tries" % (self.name, tries))
             try: 
-                self.client = PythonClient(rpcport=self.rpcport)
+                self.client = AirSimClient(rpcport=self.rpcport)
                 armed = self.client.arm()
                 if armed:
                     self.client.takeoff()
