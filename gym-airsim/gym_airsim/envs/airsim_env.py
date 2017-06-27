@@ -110,7 +110,7 @@ class AirsimEnv(gym.Env):
         armed = False
         tries = 0
         while not armed and tries < 5:
-            sleep(1)
+            time.sleep(1)
             print("Container %s: Trying to arm after $s tries" % (self.name, tries))
             try: 
                 self.client = PythonClient(rpcport=self.rpcport)
