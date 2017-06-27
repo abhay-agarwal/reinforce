@@ -85,6 +85,9 @@ class AirsimEnv(gym.Env):
             # self.client.moveByAngle(self, pitch, roll, z, yaw, duration):
             # print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
             # self.client.moveByAngle(1, 0, 3, direction, 10)
+            print("Taking action: %s" % action)
+            print(self.airsim.call('getPosition'))
+            print(self.airsim.call('getVelocity'))
             self.airsim.call("armDisarm", True)
             self.airsim.call('moveByVelocity', 2, 0, 0, 10, DrivetrainType.ForwardOnly, (False, direction))
         except Exception as e:
@@ -95,7 +98,7 @@ class AirsimEnv(gym.Env):
         tries = 0
         while not captured and tries < 5:
             try:
-                self.vnc = vncapi.connect('0.0.0.0::590%d' % self.container_id, password=None)
+                self.vnc.connect('0.0.0.0::590%d' % self.container_id, password=None)
                 self.vnc.captureScreen('%d.png' % self.container_id)
                 captured = True
                 print("Image captured")
@@ -103,8 +106,8 @@ class AirsimEnv(gym.Env):
             except Exception as e:
                 print("Image retrieval and decode failed with error %s" % e)
                 # retry connecting
-            time.sleep(1)
-            tries += 1
+                time.sleep(1)
+                tries += 1
         if not captured:
             print("Container %s: Failed to capture image. But not exiting.." % self.name)
         frame = cv2.imread('%d.png' % self.container_id, cv2.IMREAD_GRAYSCALE)
@@ -123,7 +126,6 @@ class AirsimEnv(gym.Env):
         self.steps = 0
         armed = False
         tries = 0
-        time.sleep(3)
         while not armed and tries < 5:
             print("Container %s: Trying to arm after %d tries" % (self.name, tries))
             try:
@@ -134,8 +136,8 @@ class AirsimEnv(gym.Env):
                     break
             except:
                 print("Container %s: Arming returned error" % self.name)
-            time.sleep(1)
-            tries += 1
+                time.sleep(1)
+                tries += 1
         if not armed:
             print("Container %s: Failed to Arm. Exiting.." % self.name)
             sys.exit(1)
