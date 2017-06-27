@@ -47,12 +47,12 @@ class AirsimEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=255, shape=(42,42,1))
 
     def _assign(self, container_id):
-        print("TESTTESTTEST")
         self.container_id = container_id
         self.name = "airsim-0%d" % container_id
         self.rpcport = 41450 + container_id
         try:
-            self.container = docker.from_env().containers.get(self.name)
+            client = docker.from_env()
+            self.container = client.containers.get(self.name)
         except docker.errors.NotFound:
             print("Please launch docker container %s" % self.name)
             sys.exit(1)
@@ -94,8 +94,6 @@ class AirsimEnv(gym.Env):
             return frame
         print("Shape is %s" % frame.shape)
 
-        # TODO make the frame size inside airsim
-        frame = frame[0:500,0:500]
         frame = cv2.resize(frame, (80, 80))
         frame = cv2.resize(frame, (42, 42))
         frame = frame.astype(np.float32)
@@ -123,7 +121,7 @@ class AirsimEnv(gym.Env):
             print("Container %s: Failed to Arm. Exiting.." % self.name)
             sys.exit(1)
         print("Container %s: Armed" % self.name)
-        
+
         self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
 
     def _render(self, mode='human', close=False):
