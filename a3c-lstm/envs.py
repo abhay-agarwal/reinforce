@@ -1,4 +1,5 @@
 import cv2
+import go_vncdriver
 from gym.spaces.box import Box
 import numpy as np
 import gym
