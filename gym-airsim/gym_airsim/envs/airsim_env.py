@@ -90,6 +90,9 @@ class AirsimEnv(gym.Env):
             print(self.airsim.call('getVelocity'))
             self.airsim.call("armDisarm", True)
             self.airsim.call('moveByVelocity', 2, 0, 0, 10, DrivetrainType.ForwardOnly, (False, direction))
+
+            # TODO remove this. wait for action to make an impact
+            time.sleep(1)
         except Exception as e:
                     print("Container %s: Moving by %s returned error %s" % (self.name, direction, e))
 
@@ -98,7 +101,7 @@ class AirsimEnv(gym.Env):
         tries = 0
         while not captured and tries < 5:
             try:
-                self.vnc.connect('0.0.0.0::590%d' % self.container_id, password=None)
+                self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
                 self.vnc.captureScreen('%d.png' % self.container_id)
                 captured = True
                 print("Image captured")
