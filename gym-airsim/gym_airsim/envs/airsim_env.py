@@ -68,6 +68,7 @@ class AirsimEnv(gym.Env):
 
     def _step(self, action):
         self.steps += 1
+        print("Step %s." % self.steps)
         self._take_action(action)
         has_collided = self.airsim.call('getCollisionInfo')[0]
         reward = default_reward if has_collided else 0
