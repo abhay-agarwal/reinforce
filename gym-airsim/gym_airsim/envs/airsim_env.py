@@ -94,12 +94,12 @@ class AirsimEnv(gym.Env):
             try:
                 self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
                 self.vnc.captureScreen('%d.png' % self.container_id)
+                if captured:
+                    print("Image captured")
+                    break
             except Exception as e:
                 print("Image retrieval and decode failed with error %s" % e)
                 # retry connecting
-            if captured:
-                print("Image captured")
-                break
             time.sleep(1)
             tries += 1
         if not armed:
@@ -125,11 +125,11 @@ class AirsimEnv(gym.Env):
             try:
                 self.airsim = msgpackrpc.Client(msgpackrpc.Address("0.0.0.0", self.rpcport))
                 armed = self.airsim.call("armDisarm", True)
+                if armed:
+                    self.airsim.call("takeoff", 3)
+                    break
             except:
                 print("Container %s: Arming returned error" % self.name)
-            if armed:
-                self.airsim.call("takeoff", 3)
-                break
             time.sleep(1)
             tries += 1
         if not armed:
