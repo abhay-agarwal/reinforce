@@ -102,7 +102,7 @@ class AirsimEnv(gym.Env):
                 # retry connecting
             time.sleep(1)
             tries += 1
-        if not armed:
+        if not captured:
             print("Container %s: Failed to capture image. Exiting.." % self.name)
             sys.exit(1)
         frame = cv2.imread('%d.png' % self.container_id, cv2.IMREAD_GRAYSCALE)
