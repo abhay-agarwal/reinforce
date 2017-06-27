@@ -9,6 +9,8 @@ from gym.utils import seeding
 import docker
 from .PythonClient import *
 
+from vncdotool import api as vncapi
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -34,7 +36,7 @@ class AirsimEnv(gym.Env):
 
     metadata = {"render.modes": ["human","rgb_array"]}
     
-    def __init__(self, container_id=2):
+    def __init__(self):
 
         self.steps = 0
         self.max_timesteps = 99
@@ -45,9 +47,9 @@ class AirsimEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=255, shape=(42,42,1))
 
     def _assign(self, container_id):
+        self.container_id = container_id
         self.name = "airsim-0%d" % container_id
         self.rpcport = 41450 + container_id
-        self.client = AirSimClient(rpcport=self.rpcport)
         try:
             self.container = docker.from_env().containers.get(self.name)
         except docker.errors.NotFound:
@@ -67,6 +69,7 @@ class AirsimEnv(gym.Env):
         try:
             # TODO Move by angle
             # self.client.moveByAngle(self, pitch, roll, z, yaw, duration):
+            print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
             self.client.moveByAngle(1, 0, 2.5, direction, 10)
             # self.client.moveByVelocity(2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
         except Exception as e:
@@ -79,9 +82,11 @@ class AirsimEnv(gym.Env):
             #     print("Camera is not returning image, please check airsim for error messages")
             #     sys.exit(0)
             # frame = cv2.imdecode(rawImage, cv2.IMREAD_GRAYSCALE)
-            frame = cv2.imread("env.png",cv2.IMREAD_GRAYSCALE)
+            self.vnc.captureScreen('%d.png' % self.container_id)
+            frame = cv2.imread('%d.png' % self.container_id, cv2.IMREAD_GRAYSCALE)
         except Exception as e:
             print("Image retrieval and decode failed with error %s" % e)
+            sys.exit(1)
         if raw:
             return frame
         print("Shape is %s" % frame.shape)
@@ -100,7 +105,7 @@ class AirsimEnv(gym.Env):
         armed = False
         tries = 0
         while not armed and tries < 5:
-            sleep(2)
+            sleep(1)
             print("Container %s: Trying to arm after $s tries" % (self.name, tries))
             try: 
                 self.client = PythonClient(rpcport=self.rpcport)
@@ -114,6 +119,8 @@ class AirsimEnv(gym.Env):
             print("Container %s: Failed to Arm. Exiting.." % self.name)
             sys.exit(1)
         print("Container %s: Armed" % self.name)
+
+        self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
 
     def _render(self, mode='human', close=False):
         return self._get_state(raw=True)

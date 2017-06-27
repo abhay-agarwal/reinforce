@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import cv2
-import go_vncdriver
 import tensorflow as tf
 import argparse
 import logging
