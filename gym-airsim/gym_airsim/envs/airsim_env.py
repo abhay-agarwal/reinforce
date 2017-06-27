@@ -68,7 +68,7 @@ class AirsimEnv(gym.Env):
     def _step(self, action):
         self.steps += 1
         self._take_action(action)
-        has_collided = self.client.getCollisionInfo()[0]
+        has_collided = self.airsim.getCollisionInfo()[0]
         reward = default_reward if has_collided else 0
         ob = self._get_state()
         if has_collided:
@@ -80,9 +80,9 @@ class AirsimEnv(gym.Env):
         try:
             # TODO Move by angle
             # self.client.moveByAngle(self, pitch, roll, z, yaw, duration):
-            print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
-            self.client.moveByAngle(1, 0, 3, direction, 10)
-            # self.client.moveByVelocity(2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
+            # print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
+            # self.client.moveByAngle(1, 0, 3, direction, 10)
+            self.airsim.moveByVelocity(2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
         except Exception as e:
                     print("Container %s: Moving by %s returned error %s" % (self.name, direction, e))
 
@@ -117,20 +117,21 @@ class AirsimEnv(gym.Env):
         while not armed and tries < 5:
             time.sleep(1)
             print("Container %s: Trying to arm after %d tries" % (self.name, tries))
-            try: 
-                self.client = AirSimClient(rpcport=self.rpcport)
-                armed = self.client.arm()
+            try:
+                self.airsim = AirSimClient(rpcport=self.rpcport)
+                armed = self.airsim.arm()
                 if armed:
-                    self.client.takeoff()
+                    self.airsim.takeoff(3)
             except:
-                print("Container %s: Arming returned error %s" % (self.name, e))
+                print("Container %s: Arming returned error" % self.name)
             tries += 1
         if not armed:
             print("Container %s: Failed to Arm. Exiting.." % self.name)
             sys.exit(1)
         print("Container %s: Armed" % self.name)
 
-        self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
+        # self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
+        return self._get_state()
 
     def _render(self, mode='human', close=False):
         return self._get_state(raw=True)
