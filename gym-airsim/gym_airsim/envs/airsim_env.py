@@ -70,7 +70,8 @@ class AirsimEnv(gym.Env):
         self.steps += 1
         print("Step %s." % self.steps)
         self._take_action(action)
-        has_collided = self.airsim.call('getCollisionInfo')[0]
+        collision_info = self.airsim.call('getCollisionInfo')
+        has_collided = collision_info[0]
         reward = default_reward if has_collided else 0
         ob = self._get_state()
         if has_collided:
@@ -93,7 +94,7 @@ class AirsimEnv(gym.Env):
         tries = 0
         while not captured and tries < 5:
             try:
-                self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
+                self.vnc = vncapi.connect('0.0.0.0::590%d' % self.container_id, password=None)
                 self.vnc.captureScreen('%d.png' % self.container_id)
                 if captured:
                     print("Image captured")
@@ -118,8 +119,10 @@ class AirsimEnv(gym.Env):
     def _reset(self):
         print("Resetting Container")
         call(["sh", "-c", "docker restart -t 0 %s > /dev/null" % self.name])
+        self.steps = 0
         armed = False
         tries = 0
+        time.sleep(3)
         while not armed and tries < 5:
             print("Container %s: Trying to arm after %d tries" % (self.name, tries))
             try:
