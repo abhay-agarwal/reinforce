@@ -83,7 +83,7 @@ class AirsimEnv(gym.Env):
             # self.client.moveByAngle(self, pitch, roll, z, yaw, duration):
             # print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
             # self.client.moveByAngle(1, 0, 3, direction, 10)
-            return self.airsim.call('moveByVelocity', 2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
+            return self.airsim.call('moveByVelocity', 2, 0, 0, 10, DrivetrainType.ForwardOnly, (False, direction))
         except Exception as e:
                     print("Container %s: Moving by %s returned error %s" % (self.name, direction, e))
 
