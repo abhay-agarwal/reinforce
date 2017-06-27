@@ -51,6 +51,7 @@ class AirsimEnv(gym.Env):
         self.container_id = container_id
         self.name = "airsim-0%d" % container_id
         self.rpcport = 41450 + container_id
+        self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
         # try:
         #     client = docker.from_env()
         #     self.container = client.containers.get(self.name)
@@ -61,8 +62,6 @@ class AirsimEnv(gym.Env):
         if failed:
             print("Please launch docker container %s" % self.name)
             sys.exit(1)
-
-        self._reset(True)
 
     def _step(self, action):
         self.steps += 1
