@@ -96,9 +96,9 @@ class AirsimEnv(gym.Env):
             try:
                 self.vnc = vncapi.connect('0.0.0.0::590%d' % self.container_id, password=None)
                 self.vnc.captureScreen('%d.png' % self.container_id)
-                if captured:
-                    print("Image captured")
-                    break
+                captured = True
+                print("Image captured")
+                break
             except Exception as e:
                 print("Image retrieval and decode failed with error %s" % e)
                 # retry connecting
