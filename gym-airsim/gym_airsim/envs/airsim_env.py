@@ -47,6 +47,7 @@ class AirsimEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, high=255, shape=(42,42,1))
 
     def _assign(self, container_id):
+        print("TESTTESTTEST")
         self.container_id = container_id
         self.name = "airsim-0%d" % container_id
         self.rpcport = 41450 + container_id
@@ -55,6 +56,8 @@ class AirsimEnv(gym.Env):
         except docker.errors.NotFound:
             print("Please launch docker container %s" % self.name)
             sys.exit(1)
+
+        self._reset(True)
 
     def _step(self, action):
         self.steps += 1
@@ -100,8 +103,9 @@ class AirsimEnv(gym.Env):
         frame = np.reshape(frame, [42, 42, 1])
         return frame
 
-    def _reset(self):
-        self.container.restart(timeout=0)
+    def _reset(self, restart=True):
+        if restart:
+            self.container.restart(timeout=0)
         armed = False
         tries = 0
         while not armed and tries < 5:
@@ -119,7 +123,7 @@ class AirsimEnv(gym.Env):
             print("Container %s: Failed to Arm. Exiting.." % self.name)
             sys.exit(1)
         print("Container %s: Armed" % self.name)
-
+        
         self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
 
     def _render(self, mode='human', close=False):
