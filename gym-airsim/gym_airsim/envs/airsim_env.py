@@ -57,8 +57,8 @@ class AirsimEnv(gym.Env):
         # except docker.errors.NotFound:
         #     print("Please launch docker container %s" % self.name)
         #     sys.exit(1)
-        exists = call(["sh", "-c", "docker inspect %s > /dev/null" % self.name])
-        if not exists:
+        failed = call(["sh", "-c", "docker inspect %s > /dev/null" % self.name])
+        if failed:
             print("Please launch docker container %s" % self.name)
             sys.exit(1)
 
