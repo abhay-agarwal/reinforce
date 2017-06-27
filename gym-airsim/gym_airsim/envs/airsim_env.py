@@ -1,4 +1,5 @@
 import os, subprocess, time, signal, sys
+import msgpackrpc
 import numpy as np
 import cv2
 import gym
@@ -82,7 +83,7 @@ class AirsimEnv(gym.Env):
             # self.client.moveByAngle(self, pitch, roll, z, yaw, duration):
             # print("self.client.moveByAngle(1, 0, 2.5, %s, 10)" % direction)
             # self.client.moveByAngle(1, 0, 3, direction, 10)
-            self.airsim.moveByVelocity(2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
+            return self.airsim.call('moveByVelocity', 2, 0, 0, 10, DrivetrainType.ForwardOnly, YawMode(False, direction))
         except Exception as e:
                     print("Container %s: Moving by %s returned error %s" % (self.name, direction, e))
 
@@ -118,10 +119,10 @@ class AirsimEnv(gym.Env):
             time.sleep(1)
             print("Container %s: Trying to arm after %d tries" % (self.name, tries))
             try:
-                self.airsim = AirSimClient(rpcport=self.rpcport)
-                armed = self.airsim.arm()
+                self.airsim = msgpackrpc.Client(msgpackrpc.Address("0.0.0.0", self.rpcport))
+                armed = self.airsim.call("armDisarm", True)
                 if armed:
-                    self.airsim.takeoff(3)
+                    self.airsim.call("takeoff", 3)
             except:
                 print("Container %s: Arming returned error" % self.name)
             tries += 1
