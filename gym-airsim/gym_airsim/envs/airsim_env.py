@@ -6,7 +6,8 @@ from gym import error, spaces
 from gym import utils
 from gym.utils import seeding
 
-import docker
+# import docker
+from subprocess import call
 from .PythonClient import *
 
 from vncdotool import api as vncapi
@@ -50,10 +51,14 @@ class AirsimEnv(gym.Env):
         self.container_id = container_id
         self.name = "airsim-0%d" % container_id
         self.rpcport = 41450 + container_id
-        try:
-            client = docker.from_env()
-            self.container = client.containers.get(self.name)
-        except docker.errors.NotFound:
+        # try:
+        #     client = docker.from_env()
+        #     self.container = client.containers.get(self.name)
+        # except docker.errors.NotFound:
+        #     print("Please launch docker container %s" % self.name)
+        #     sys.exit(1)
+        exists = call(["sh", "-c", "docker inspect %s > /dev/null" % self.name])
+        if not exists:
             print("Please launch docker container %s" % self.name)
             sys.exit(1)
 
@@ -101,9 +106,8 @@ class AirsimEnv(gym.Env):
         frame = np.reshape(frame, [42, 42, 1])
         return frame
 
-    def _reset(self, restart=True):
-        if restart:
-            self.container.restart(timeout=0)
+    def _reset(self):
+        call(["sh", "-c", "docker restart -t 0 %s > /dev/null" % self.name])
         armed = False
         tries = 0
         while not armed and tries < 5:
