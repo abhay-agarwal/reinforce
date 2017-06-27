@@ -88,17 +88,24 @@ class AirsimEnv(gym.Env):
                     print("Container %s: Moving by %s returned error %s" % (self.name, direction, e))
 
     def _get_state(self, raw=False):
-        try:
-            # rawImage = self.client.getImageForCamera(0, AirSimImageType.Scene)
-            # if (rawImage is None):
-            #     print("Camera is not returning image, please check airsim for error messages")
-            #     sys.exit(0)
-            # frame = cv2.imdecode(rawImage, cv2.IMREAD_GRAYSCALE)
-            self.vnc.captureScreen('%d.png' % self.container_id)
-            frame = cv2.imread('%d.png' % self.container_id, cv2.IMREAD_GRAYSCALE)
-        except Exception as e:
-            print("Image retrieval and decode failed with error %s" % e)
+        captured = False
+        tries = 0
+        while not captured and tries < 5:
+            try:
+                self.vnc = vncapi.connect('localhost::590%d' % self.container_id, password=None)
+                self.vnc.captureScreen('%d.png' % self.container_id)
+            except Exception as e:
+                print("Image retrieval and decode failed with error %s" % e)
+                # retry connecting
+            if captured:
+                print("Image captured")
+                break
+            time.sleep(1)
+            tries += 1
+        if not armed:
+            print("Container %s: Failed to capture image. Exiting.." % self.name)
             sys.exit(1)
+        frame = cv2.imread('%d.png' % self.container_id, cv2.IMREAD_GRAYSCALE)
         if raw:
             return frame
         frame = cv2.resize(frame, (80, 80))
@@ -114,15 +121,16 @@ class AirsimEnv(gym.Env):
         armed = False
         tries = 0
         while not armed and tries < 5:
-            time.sleep(1)
             print("Container %s: Trying to arm after %d tries" % (self.name, tries))
             try:
                 self.airsim = msgpackrpc.Client(msgpackrpc.Address("0.0.0.0", self.rpcport))
                 armed = self.airsim.call("armDisarm", True)
-                if armed:
-                    self.airsim.call("takeoff", 3)
             except:
                 print("Container %s: Arming returned error" % self.name)
+            if armed:
+                self.airsim.call("takeoff", 3)
+                break
+            time.sleep(1)
             tries += 1
         if not armed:
             print("Container %s: Failed to Arm. Exiting.." % self.name)
