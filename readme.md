@@ -1,11 +1,6 @@
-Plan of Action
-----------------------
+Reinforcement Learning with a3c-lstm
 
-- [x] Create a Git Repo
-- [x] Set Up Visual Studio Team Services: https://resac.visualstudio.com/reinforce/
-- [x] Get OpenAI gym running on Windows
-- [x] Create A* Environment in OpenAI
-- [x] Add imitation reward in environment
-- [x] Test for imitation learning in toy ANN
-- [x] Create LSTM-RNN based Theta* environment
-- [ ] Test for path planning knowledge using curriculum learning
+
+This is the airsim branch of my a3c lstm learning code. This code requires Python 3. To install and run this code, first go to the `gym-airsim` directory and type `pip3 install -e .`, which installs the gym environment. Then go to the `a3c-lstm` folder and run the `cmd.sh` script. The script will automatically create a tmux shell for you to observe the progress of your algorithm. Tensorboard will be available at `localhost:12345`.
+
+Note, you must deploy the containerized airsim using the library [here](https://github.com/abhay-agarwal/AirSim)
